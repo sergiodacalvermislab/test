@@ -119,11 +119,41 @@ for prj in "${PROJECTS[@]}"; do
   fi
 
   # --- BioSample ---
-  read -r bwebenv bqkey bcount <<<"$(history_handle biosample "${prj}%5BBioProject%5D")"
-  echo "   BioSample: ${bcount} muestras"
-  if [[ "$bcount" != "0" ]]; then
-    fetch "${EUTILS}/efetch.fcgi?db=biosample&WebEnv=${bwebenv}&query_key=${bqkey}&rettype=full&retmode=xml${KEYARG}" \
-          "${pdir}/biosample.xml" "biosample ${prj}"
+  # `esearch db=biosample term=PRJNA...[BioProject]` devuelve 0 en muchos
+  # proyectos: ese campo de búsqueda no está indexado de forma fiable en
+  # BioSample. En vez de confiar en la búsqueda, se sacan los accessions
+  # SAMN del propio runinfo y se piden por ID, que no puede fallar por
+  # indexación. Se trocea en lotes porque efetch no admite listas enormes.
+  if [[ -s "${pdir}/runinfo.csv" ]]; then
+    python3 - "${pdir}/runinfo.csv" > "${pdir}/.biosample_ids" <<'PY'
+import csv, sys
+with open(sys.argv[1], newline="", encoding="utf-8", errors="replace") as fh:
+    accs = {(f.get("BioSample") or "").strip() for f in csv.DictReader(fh)}
+print("\n".join(sorted(a for a in accs if a.startswith("SAM"))))
+PY
+    n_bs=$(grep -c . "${pdir}/.biosample_ids" || true)
+    echo "   BioSample: ${n_bs} accessions en runinfo"
+    if [[ "${n_bs:-0}" -gt 0 ]]; then
+      : > "${pdir}/biosample.xml.parts"
+      lote=0
+      while read -r -a ids; do
+        lote=$((lote + 1))
+        joined=$(IFS=,; echo "${ids[*]}")
+        if fetch "${EUTILS}/efetch.fcgi?db=biosample&id=${joined}&rettype=full&retmode=xml${KEYARG}" \
+                 "${pdir}/.bs_lote_${lote}.xml" "biosample ${prj} lote ${lote}"; then
+          # Conserva sólo los elementos <BioSample>, sin el envoltorio de cada lote.
+          sed -e 's/<?xml[^>]*?>//' -e 's#</\?BioSampleSet[^>]*>##g' \
+              "${pdir}/.bs_lote_${lote}.xml" >> "${pdir}/biosample.xml.parts"
+        fi
+        rm -f "${pdir}/.bs_lote_${lote}.xml"
+      done < <(xargs -n 200 < "${pdir}/.biosample_ids")
+      { echo '<?xml version="1.0" encoding="UTF-8"?>'; echo '<BioSampleSet>'
+        cat "${pdir}/biosample.xml.parts"; echo '</BioSampleSet>'; } > "${pdir}/biosample.xml"
+      rm -f "${pdir}/biosample.xml.parts" "${pdir}/.biosample_ids"
+      echo "   BioSample: $(grep -c '<BioSample ' "${pdir}/biosample.xml" || true) registros recuperados"
+    fi
+  else
+    echo "   ! Sin runinfo.csv: no se pueden derivar los accessions de BioSample." >&2
   fi
 
   # --- BioProject ---
