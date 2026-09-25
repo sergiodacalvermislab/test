@@ -1,0 +1,10 @@
+# Metadatos descargados de NCBI: se regeneran con scripts/01_fetch_sra_metadata.sh
+data/raw_metadata/*/
+*.err
+
+# Fase 2
+data/fastq/
+data/dada2/
+
+__pycache__/
+*.pyc
