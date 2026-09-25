@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<RecordSet><DocumentSummary uid="1248021">
+    <Project>
+        <ProjectID>
+            <ArchiveID accession="PRJNA1248021" archive="NCBI" id="1248021"/>
+            <LocalID>bp0</LocalID>
+            <LocalID>bp0</LocalID>
+        </ProjectID>
+        <ProjectDescr>
+            <Title>Post-Coital Dynamics of the Penile and Cervico-vaginal Genital Microbiome</Title>
+            <Description>Collection of 16S short reads illumina sequencing on the human genital microbiome.</Description>
+            <Grant GrantId="PJT-156123">
+                <Title>PJT-156123</Title>
+                <Agency abbr="CIHR">Canadian Institutes of Health</Agency>
+            </Grant>
+            <Grant GrantId="R01 AI123002">
+                <Title>The role of penile bacteria and inflammation in HIV susceptibility; Rakai, Uganda</Title>
+                <Agency abbr="NIAID NIH HHS">National Institute of Allergy and Infectious Diseases Extramural Activities</Agency>
+                <PI affil="GEORGE WASHINGTON UNIVERSITY" auth="era" userid="10180509">
+                    <Last>Liu</Last>
+                    <Given>Cindy</Given>
+                </PI>
+            </Grant>
+            <Grant GrantId="TMI-138656">
+                <Title>TMI-138656</Title>
+                <Agency abbr="CIHR">Canadian Institutes of Health</Agency>
+            </Grant>
+            <Relevance>
+                <Other>Genital Microbiome</Other>
+            </Relevance>
+        </ProjectDescr>
+        <ProjectType>
+            <ProjectTypeSubmission>
+                <Target capture="eWhole" material="eGenome" sample_scope="eMultispecies"/>
+                <Method method_type="eSequencing"/>
+                <Objectives>
+                    <Data data_type="eRawSequenceReads"/>
+                </Objectives>
+                <IntendedDataTypeSet>
+                    <DataType>raw sequence reads</DataType>
+                </IntendedDataTypeSet>
+                <ProjectDataTypeSet>
+                    <DataType>raw sequence reads</DataType>
+                </ProjectDataTypeSet>
+            </ProjectTypeSubmission>
+        </ProjectType>
+    </Project>
+    <Submission last_update="2025-04-08" submission_id="SUB15023500" submitted="2025-04-08">
+        <Description>
+            <!-- Submitter information has been removed -->
+            <Organization role="owner" type="institute" url="https://battlesuperbugs.com/">
+                <Name>George Washington University</Name>
+                <!-- Contact information has been removed -->
+            </Organization>
+            <Access>public</Access>
+        </Description>
+        <Action action_id="SUB15023500-bp0"/>
+    </Submission>
+</DocumentSummary>
+
+</RecordSet>

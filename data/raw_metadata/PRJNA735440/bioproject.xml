@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<RecordSet><DocumentSummary uid="735440">
+    <Project>
+        <ProjectID>
+            <ArchiveID accession="PRJNA735440" archive="NCBI" id="735440"/>
+            <LocalID>bp0</LocalID>
+            <LocalID>bp0</LocalID>
+        </ProjectID>
+        <ProjectDescr>
+            <Title>A pilot study of concurrent male partner treatment for bacterial vaginosis</Title>
+            <Description>The purpose of this study was to describe the impact of concurrent partner treatment for bacterial vaginosis on the composition of the genital microbiota of heterosexual couples over a 12-week period.</Description>
+            <Relevance>
+                <Medical>yes</Medical>
+            </Relevance>
+        </ProjectDescr>
+        <ProjectType>
+            <ProjectTypeSubmission>
+                <Target capture="eWhole" material="eGenome" sample_scope="eMultispecies"/>
+                <Method method_type="eSequencing"/>
+                <Objectives>
+                    <Data data_type="eRawSequenceReads"/>
+                </Objectives>
+                <IntendedDataTypeSet>
+                    <DataType>raw sequence reads</DataType>
+                </IntendedDataTypeSet>
+                <ProjectDataTypeSet>
+                    <DataType>raw sequence reads</DataType>
+                </ProjectDataTypeSet>
+            </ProjectTypeSubmission>
+        </ProjectType>
+    </Project>
+    <Submission last_update="2021-06-06" submission_id="SUB9806811" submitted="2021-06-06">
+        <Description>
+            <!-- Submitter information has been removed -->
+            <Organization role="owner" type="institute">
+                <Name>Murdoch Childrens Research Institute</Name>
+                <!-- Contact information has been removed -->
+            </Organization>
+            <Access>public</Access>
+        </Description>
+        <Action action_id="SUB9806811-bp0"/>
+    </Submission>
+</DocumentSummary>
+
+</RecordSet>

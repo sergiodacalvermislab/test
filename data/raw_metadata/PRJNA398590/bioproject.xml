@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+<RecordSet><DocumentSummary uid="398590">
+    <Project>
+        <ProjectID>
+            <ArchiveID accession="PRJNA398590" archive="NCBI" id="398590"/>
+            <LocalID>bp0</LocalID>
+            <LocalID>bp0</LocalID>
+        </ProjectID>
+        <ProjectDescr>
+            <Title>Combined oral and topical antimicrobial therapy for male partners of women with bacterial vaginosis: acceptability, tolerability and impact on the genital microbiota of couples</Title>
+            <Description>Recurrence following recommended treatment for bacterial vaginosis is unacceptably high. While the pathogenesis of recurrence is not well understood, recent evidence indicates re-infection from sexual partners is likely to play a role. The aim of this study was toTo assess the acceptability and tolerability of topical and oral antimicrobial therapy in male partners of women with bacterial vaginosis (BV), and to investigate the impact of dual-partner treatment on the vaginal and penile microbiota.</Description>
+            <Publication id="29293559" status="ePublished">
+                <Reference>Combined oral and topical antimicrobial therapy for male partners of women with bacterial vaginosis: Acceptability, tolerability and impact on the genital microbiota of couples - A pilot study.</Reference>
+                <DbType>ePubmed</DbType>
+            </Publication>
+            <Relevance>
+                <Medical>yes</Medical>
+            </Relevance>
+        </ProjectDescr>
+        <ProjectType>
+            <ProjectTypeSubmission>
+                <Target capture="eWhole" material="eGenome" sample_scope="eMultispecies"/>
+                <Method method_type="eSequencing"/>
+                <Objectives>
+                    <Data data_type="eRawSequenceReads"/>
+                </Objectives>
+                <IntendedDataTypeSet>
+                    <DataType>raw sequence reads</DataType>
+                </IntendedDataTypeSet>
+                <ProjectDataTypeSet>
+                    <DataType>raw sequence reads</DataType>
+                </ProjectDataTypeSet>
+            </ProjectTypeSubmission>
+        </ProjectType>
+    </Project>
+    <Submission last_update="2017-08-17" submission_id="SUB2961660" submitted="2017-08-17">
+        <Description>
+            <!-- Submitter information has been removed -->
+            <Organization role="owner" type="institute">
+                <Name>Murdoch Childrens Research Institute</Name>
+                <!-- Contact information has been removed -->
+            </Organization>
+            <Access>public</Access>
+        </Description>
+        <Action action_id="SUB2961660-bp0"/>
+    </Submission>
+</DocumentSummary>
+
+</RecordSet>
