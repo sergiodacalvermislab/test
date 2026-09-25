@@ -127,6 +127,66 @@ def lee_texto(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace") if path.exists() else ""
 
 
+# Columnas de SraRunTable.csv que describen el run/la secuenciación, no la
+# biología de la muestra. Se excluyen del inventario de atributos para que la
+# tabla no se llene de ruido técnico, pero se siguen usando para plataforma,
+# modelo y layout.
+COLS_RUN = {
+    "run", "releasedate", "loaddate", "createdate", "spots", "bases", "spots_with_mates",
+    "avglength", "size_mb", "assemblyname", "download_path", "experiment", "libraryname",
+    "librarystrategy", "libraryselection", "librarysource", "librarylayout", "insertsize",
+    "insertdev", "platform", "model", "srastudy", "bioproject", "study_pubmed_id",
+    "projectid", "sample", "biosample", "samplename", "submission", "consent",
+    "runhash", "readhash", "center_name", "instrument", "assay_type", "datastore_filetype",
+    "datastore_provider", "datastore_region", "bytes", "avgspotlen", "sra_study",
+    "sample_name", "experiment_title", "library_name", "sra_accession", "version",
+}
+
+
+def lee_srarun_table(path: Path) -> tuple[list[dict], list[dict]]:
+    """Lee un SraRunTable.csv del SRA Run Selector.
+
+    Ese CSV trae una fila por run con los atributos de BioSample ya fusionados
+    como columnas, que es justo lo que necesita la Fase 1. Devuelve
+    (runs, muestras) deduplicando muestras por BioSample.
+    """
+    if not path.exists():
+        return [], []
+    with path.open(newline="", encoding="utf-8", errors="replace") as fh:
+        filas = [f for f in csv.DictReader(fh) if any((v or "").strip() for v in f.values())]
+    if not filas:
+        return [], []
+
+    # Normaliza los nombres de columna que el Run Selector escribe distinto
+    # que runinfo, para que el resto del script no tenga que saberlo.
+    alias = {"Assay Type": "LibraryStrategy", "Instrument": "Model",
+             "Platform": "Platform", "LibraryLayout": "LibraryLayout",
+             "AvgSpotLen": "avgspotlen", "Bases": "bases", "Bytes": "bytes"}
+    runs = []
+    for f in filas:
+        r = dict(f)
+        for origen, destino in alias.items():
+            if origen in f and destino not in r:
+                r[destino] = f[origen]
+        r.setdefault("Run", f.get("Run") or f.get("run") or "")
+        runs.append(r)
+
+    vistos, muestras = set(), []
+    for f in filas:
+        acc = (f.get("BioSample") or f.get("biosample") or f.get("Sample Name")
+               or f.get("Run") or "").strip()
+        if not acc or acc in vistos:
+            continue
+        vistos.add(acc)
+        reg = {"_accession": acc, "_id": "", "_title": (f.get("Sample Name") or "").strip(),
+               "_organism": (f.get("Organism") or f.get("organism") or "").strip()}
+        for k, v in f.items():
+            if k and k.strip().lower() not in COLS_RUN and (v or "").strip():
+                reg[k.strip()] = v.strip()
+        muestras.append(reg)
+    return runs, muestras
+
+
 # --- Análisis -----------------------------------------------------------------
 
 def inventario_atributos(muestras: list[dict]) -> list[tuple]:
@@ -196,9 +256,21 @@ def analiza(prj: str, base: Path) -> dict:
     muestras = lee_biosample(d / "biosample.xml")
     exp_xml = lee_texto(d / "experiment.xml")
 
+    # Alternativa sin E-utilities: SraRunTable.csv descargado del Run Selector,
+    # que ya trae los atributos de BioSample fusionados como columnas. Rellena
+    # sólo lo que falte, para poder mezclar ambas fuentes.
+    fuentes = ["runinfo.csv" if runs else None, "biosample.xml" if muestras else None]
+    if not runs or not muestras:
+        srt_runs, srt_muestras = lee_srarun_table(d / "SraRunTable.csv")
+        if srt_runs or srt_muestras:
+            fuentes.append("SraRunTable.csv")
+        runs = runs or srt_runs
+        muestras = muestras or srt_muestras
+
     res = {
         "prj": prj,
         "etiqueta": ETIQUETAS[prj],
+        "fuentes": [f for f in fuentes if f],
         "n_runs": len(runs),
         "n_biosamples": len(muestras),
         "descargado": bool(runs or muestras),
@@ -206,7 +278,9 @@ def analiza(prj: str, base: Path) -> dict:
         "modelo": Counter(r.get("Model", "?") for r in runs),
         "layout": Counter(r.get("LibraryLayout", "?") for r in runs),
         "strategy": Counter(r.get("LibraryStrategy", "?") for r in runs),
-        "spots": [int(r["spots"]) for r in runs if r.get("spots", "").isdigit()],
+        # runinfo trae "spots"; SraRunTable no, así que se cae a "bases".
+        "spots": [int(r["spots"]) for r in runs if (r.get("spots") or "").isdigit()],
+        "bases": [int(r["bases"]) for r in runs if (r.get("bases") or "").isdigit()],
         "inventario": inventario_atributos(muestras),
         "estructura": {k: detecta(muestras, pn, pv) for k, (pn, pv) in ESTRUCTURA.items()},
         "auditoria": {k: detecta(muestras, pn, pv) for k, (pn, pv) in AUDITORIA.items()},
@@ -258,6 +332,7 @@ def informe(resultados: list[dict]) -> str:
         ["", "PRJNA398590", "PRJNA735440", "PRJNA1248021"],
         [[campo] + [fn(r) for r in resultados] for campo, fn in [
             ("Estudio", lambda r: r["etiqueta"]),
+            ("Fuente de los datos", lambda r: ", ".join(f"`{f}`" for f in r["fuentes"]) or "—"),
             ("Runs (SRR)", lambda r: r["n_runs"] or "—"),
             ("BioSamples", lambda r: r["n_biosamples"] or "—"),
             ("Sujetos (inferido)", lambda r: r["n_sujetos"] if r["n_sujetos"] else "no inferible"),
@@ -267,8 +342,10 @@ def informe(resultados: list[dict]) -> str:
             ("Modelo", lambda r: top(r["modelo"])),
             ("Layout", lambda r: top(r["layout"])),
             ("Estrategia", lambda r: top(r["strategy"])),
-            ("Mediana spots/run", lambda r: (sorted(r["spots"])[len(r["spots"]) // 2]
-                                             if r["spots"] else "—")),
+            ("Profundidad mediana/run", lambda r: (
+                f"{sorted(r['spots'])[len(r['spots']) // 2]:,} spots" if r["spots"]
+                else f"{sorted(r['bases'])[len(r['bases']) // 2] / 1e6:,.0f} Mbases"
+                if r["bases"] else "—")),
         ]]))
     L.append("")
 
