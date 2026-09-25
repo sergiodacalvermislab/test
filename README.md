@@ -11,12 +11,12 @@ NCBI SRA:
 
 ## Estado
 
-**Fase 1: parcialmente bloqueada.** El proxy de red del entorno deniega
+**Fase 1: completa.** Metadatos extraídos (140 + 418 + 284 BioSamples).
 `ncbi.nlm.nih.gov` y `ebi.ac.uk`, así que no se han podido extraer los
 metadatos. Ver [`docs/fase1_estado.md`](docs/fase1_estado.md) para el detalle,
 lo que sí se ha verificado por otras vías y cómo desbloquearlo.
 
-Fases 2 y 3: no iniciadas, condicionadas al resultado de la Fase 1.
+**Fase 1 completa.** Veredicto en [`docs/fase1_veredicto.md`](docs/fase1_veredicto.md), tablas en [`docs/fase1_tablas.md`](docs/fase1_tablas.md). Fases 2 y 3 no iniciadas.
 
 ## Uso
 
